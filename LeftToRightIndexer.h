@@ -6,14 +6,14 @@
 
 class LeftToRightIndexer{
   public:
-    //LeftToRightIndexer(CRGB *left, CRGB *right, CRGB *bottom);
-    LeftToRightIndexer(CRGB *left, CRGB *right, CRGB *bottom, CRGB *top=NULL);
+    LeftToRightIndexer(CRGB *left, CRGB *right, CRGB *bottom);
+    //LeftToRightIndexer(CRGB *left, CRGB *right, CRGB *bottom, CRGB *top=NULL);
     void SetColor(int index, CRGB color);
   private:
     CRGB *_left;
     CRGB *_right;
     CRGB *_bottom;
-    CRGB *_top;
+    //CRGB *_top;
     int idx;
 };
 

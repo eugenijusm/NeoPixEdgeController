@@ -18,8 +18,10 @@
 #include "LedAnim.h"
 
 #include "AnimMeteor.h"
-  
-#define OTA_ON 0  // 0
+
+#include "Dbg.h"
+ 
+#define OTA_ON 0  // Set to 1 to Force OTA
 
 #define BUILTIN_LED_PIN 2 // D4
 #define OTA_ENABLE_PIN 14 // D5
@@ -53,79 +55,47 @@ uint32_t btnMillis;
 uint32_t animMillis;
 
 void setup() {
+
+  WiFi.persistent(false); // Do not persist Wifi settings; doesn't seem to work :/
+  
    #ifdef SERIAL_DBG
-   Serial.begin(115200);
-   Serial.println("Booting");
+      Serial.begin(115200);
+      DBG("Start\n");
    #endif
 
-   FastLED.addLeds<NEOPIXEL, LEFT_LEDS_PIN>(leftLeds, NUM_LEDS_VERTICAL);
-   #ifndef UCONFIG
-   Serial.println("TOP LEDS!!!");
-   FastLED.addLeds<NEOPIXEL, TOP_LEDS_PIN>(topLeds, NUM_LEDS_HORIZONTAL);
-   #endif
-   FastLED.addLeds<NEOPIXEL, BOTTOM_LEDS_PIN>(bottomLeds, NUM_LEDS_HORIZONTAL);
-   FastLED.addLeds<NEOPIXEL, RIGHT_LEDS_PIN>(rightLeds, NUM_LEDS_VERTICAL);   
-   
-   FastLED.setBrightness(MASTER_BRIGHTNESS);
-   setAllOff();
-   FastLED.show();
+   setup_fastLed();
 
    // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
+   
    pinMode(OTA_ENABLE_PIN, INPUT_PULLUP);
    if(digitalRead(OTA_ENABLE_PIN)==0){
      ota_enabled = 1;
    }
 
    if(ota_enabled == 1 || OTA_ON == 1){
-     #ifdef SERIAL_DBG
-     Serial.println("Init OTA");
-     #endif
+     setup_wifi();  // must be done as early as possible; stops working if led is touched first :/
+     Dbg("Init OTA");
+
      pinMode(BUILTIN_LED_PIN, OUTPUT);
-     digitalWrite(BUILTIN_LED_PIN, LOW);  // led inverted => led on
-     delay(3000);
-     digitalWrite(BUILTIN_LED_PIN, HIGH);
+     setBuiltinLed(true);
+     delay(1000);
+     setBuiltinLed(false);
 
-      #ifdef SERIAL_DBG
-     Serial.println("Wifi CLI");
-     #endif
-     // Wifi client mode
-     WiFi.mode(WIFI_STA);
-     WiFi.begin(ssid, password);
-
-     #ifdef SERIAL_DBG
-     Serial.println("Wifi begin");
-     WiFi.begin(ssid, password);
-     #endif
-     while (WiFi.status() != WL_CONNECTED){ //waitForConnect
-       #ifdef SERIAL_DBG
-       Serial.println("Connecting..");
-       #endif
-       delay ( 500 );       
-     }
-  
-    #ifdef SERIAL_DBG
-     Serial.println("Connected");
-     #endif  
-  
     ArduinoOTA.setHostname(host);
     ArduinoOTA.onStart([]() {
-        digitalWrite(BUILTIN_LED_PIN, HIGH);
+      setBuiltinLed(true);
+      Dbg("Ota start");
     });
-    #ifdef SERIAL_DBG
-     Serial.println("A");
-     #endif
     
     ArduinoOTA.onEnd([]() {
-      digitalWrite(BUILTIN_LED_PIN, LOW);
+      setBuiltinLed(false);
+      Dbg("Ota end");
     });
+    
     ArduinoOTA.onError([](ota_error_t error) { ESP.restart(); });
-    #ifdef SERIAL_DBG
-     Serial.println("B");
-     #endif
     ArduinoOTA.begin();
-    #ifdef SERIAL_DBG
-    Serial.println("OTA ready");
-    #endif
+
+    Dbg("OTA ready");    
   }
 
   btnMillis = millis()+1000;
@@ -138,25 +108,93 @@ void loop() {
     ArduinoOTA.handle();
   }
 
-  // animMeteor.Animate(CRGB::Blue, 3, 20, false);
+  
+  //simple_palette_scroll(100);
+  //handleAnimation();
+  RunningPixel();
+  Dbg("x");
+  FastLED.show();
+  Dbg("y");
+  delay(300);
+  
   // animMeteor.Animate(CRGB::Yellow, 3, 50, true);
-    #ifdef SERIAL_DBG
-    Serial.println("Main loop");
-    #endif
+    //#ifdef SERIAL_DBG
+    //  Serial.println("Main loop");
+    //#endif
    // EVERY_N_SECONDS(1){monitorModeButton();}
    // EVERY_N_SECONDS(2){handleAnimation();}
    //if(btnMillis>millis()){
    //   monitorModeButton();
    //   btnMillis = millis()+1000;
    //}
+
+
+   /*
    if(animMillis>millis()){
-    // handleAnimation();
-    ledAnim.SolidRainbowCycle();
-    Serial.print("pre show");
+        ledAnim.SolidRainbowCycle(); // TODO: should be like this
+    //Serial.print("pre show");
     FastLED.show();  
-    Serial.println("post show");
+    //Serial.println("s");
     animMillis = millis()+3000;
    }
+   */
+}
+
+void Dbg(char* msg){
+  #ifdef SERIAL_DBG
+    Serial.println(msg);
+  #endif
+}
+
+void DbgParam(String msg, String param){
+  #ifdef SERIAL_DBG
+    Serial.println(msg+":"+param);
+  #endif
+}
+
+void setup_wifi(){
+  Dbg("Wifi CLI");
+
+  // Wifi client mode
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+     
+  while (WiFi.status() != WL_CONNECTED){
+    Dbg(".");
+    delay (1000);       
+  }
+  
+  Dbg("Wifi Ok");
+}
+
+void setup_fastLed(){
+  FastLED.addLeds<NEOPIXEL, LEFT_LEDS_PIN>(leftLeds, NUM_LEDS_VERTICAL);
+   #ifndef UCONFIG
+      FastLED.addLeds<NEOPIXEL, TOP_LEDS_PIN>(topLeds, NUM_LEDS_HORIZONTAL);
+   #endif
+   FastLED.addLeds<NEOPIXEL, BOTTOM_LEDS_PIN>(bottomLeds, NUM_LEDS_HORIZONTAL);
+   FastLED.addLeds<NEOPIXEL, RIGHT_LEDS_PIN>(rightLeds, NUM_LEDS_VERTICAL);   
+   
+   FastLED.setBrightness(MASTER_BRIGHTNESS);
+   setAllOff();
+   FastLED.show();
+
+   #ifdef SERIAL_DBG
+     #ifndef UCONFIG
+       Serial.println("Top LEDs present!");
+     #endif
+     DBG("V:%u\n",NUM_LEDS_VERTICAL);
+     //DEBUG_MSG("V:",NUM_LEDS_VERTICAL,"\n");
+     //DbgParam("V",String(NUM_LEDS_VERTICAL));
+     Serial.print(" H:");
+     Serial.print(NUM_LEDS_HORIZONTAL);
+     Serial.print(" VH:");
+     Serial.print(NUM_LEDS_VH);
+     Serial.print(" Total:");
+     Serial.println(NUM_LEDS_TOTAL);
+     Serial.println("FastLed ready");
+   #endif
+   
 }
 
 void monitorModeButton(){
@@ -175,6 +213,15 @@ void monitorModeButton(){
     }
     animStep=0;
     handleAnimation();
+  }
+}
+
+void setBuiltinLed(bool turnedOn){
+  if (turnedOn){
+    digitalWrite(BUILTIN_LED_PIN, LOW);  // led inverted => led on
+  }
+  else{
+    digitalWrite(BUILTIN_LED_PIN, HIGH);
   }
 }
 
