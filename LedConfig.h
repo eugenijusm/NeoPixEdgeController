@@ -1,8 +1,6 @@
 #ifndef LedConfig_h
 #define LedConfig_h
 
-  #define SERIAL_DBG 1  // Enable serial debugging
-
   #define UCONFIG 1
   
     #define FASTLED_ESP8266_D1_PIN_ORDER  // https://github.com/FastLED/FastLED/wiki/ESP8266-notes
