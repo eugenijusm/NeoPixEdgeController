@@ -14,29 +14,20 @@ void LeftToRightIndexer::SetColor(int index, CRGB color){
   if(index < NUM_LEDS_VERTICAL){
     idx = NUM_LEDS_VERTICAL-index-1;
     _left[idx] = color;
-    DBG("-a");    
+    DBG("L\n");    
   }
 
   else if(index >= NUM_LEDS_VERTICAL && index < NUM_LEDS_VH){
     idx = NUM_LEDS_VH-1-index;
     _bottom[idx] = color;
-    #ifdef SERIAL_DBG
-    Serial.println("- b");
-    #endif
+    DBG("B\n");
   }
 
   else{
     idx = index - NUM_LEDS_VH;
-    Serial.print("-");
-    Serial.print(index);
-    Serial.print("-");
-    Serial.print(NUM_LEDS_VH);
-    Serial.print("-");
-    Serial.print(idx);
+    // DBG("index:%u VH:%u idx:%u\n", index, NUM_LEDS_VH, idx);
     _right[idx] = color;
-    #ifdef SERIAL_DBG
-    Serial.println("- c");
-    #endif
+    DBG("R\n");
   }
 }
 
