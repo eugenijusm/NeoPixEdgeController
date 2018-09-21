@@ -15,8 +15,9 @@
 
 #include "LeftToRightIndexer.h"
 #include "LedCommonActions.h"
-#include "LedAnim.h"
+#include "AnimController.h"
 
+#include "LedUniverse.h"
 #include "AnimMeteor.h"
 
 #include "Dbg.h"
@@ -36,11 +37,12 @@ CRGB bottomLeds[NUM_LEDS_HORIZONTAL];
 CRGB topLeds[NUM_LEDS_HORIZONTAL];
 #endif
 
-// CRGB leds[NUM_LEDS_TOTAL];  // wrapper array
+//LedUniverse *ledUniverse = new LedUniverse();
+LedUniverse ledUniverse;
+AnimController animController(ledUniverse.Leds);
 
 LeftToRightIndexer leftToRightIndexer(leftLeds, rightLeds, bottomLeds);
 LedCommonActions ledCommonActions(leftLeds, rightLeds, bottomLeds);
-LedAnim ledAnim(&ledCommonActions);
 
 // AnimMeteor animMeteor(leftLeds, NUM_LEDS_VERTICAL);
 AnimMeteor animMeteor(bottomLeds, NUM_LEDS_HORIZONTAL);
@@ -63,8 +65,10 @@ void setup() {
    #endif
    DBG("Start\n");
 
-   setup_fastLed();
-
+   //ledUniverse=new LedUniverse();
+   //ledUniverse->Setup();
+   ledUniverse.Setup();
+   
    // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
    
    pinMode(OTA_ENABLE_PIN, INPUT_PULLUP);
@@ -107,13 +111,23 @@ void loop() {
   if(ota_enabled == 1 || OTA_ON == 1){
     ArduinoOTA.handle();
   }
-
   
   //simple_palette_scroll(100);
-  //handleAnimation();
-  RunningPixel();
+  
+  animController.Animate();
+  delay(3000);
+  /*
+  fill_solid(leds, NUM_LEDS_TOTAL, CRGB::Green);
   FastLED.show();
-  delay(300);
+  delay(3000);
+  fill_solid(leds, NUM_LEDS_TOTAL, CRGB::Red);
+  FastLED.show();
+  delay(3000);
+  */
+  
+  //RunningPixel();
+  //FastLED.show();
+  
   
   // animMeteor.Animate(CRGB::Yellow, 3, 50, true);
    // EVERY_N_SECONDS(1){monitorModeButton();}
@@ -148,25 +162,7 @@ void setup_wifi(){
   
   DBG("Wifi Ok");
 }
-
-void setup_fastLed(){
-  FastLED.addLeds<NEOPIXEL, LEFT_LEDS_PIN>(leftLeds, NUM_LEDS_VERTICAL);
-   #ifndef UCONFIG
-      FastLED.addLeds<NEOPIXEL, TOP_LEDS_PIN>(topLeds, NUM_LEDS_HORIZONTAL);
-   #endif
-   FastLED.addLeds<NEOPIXEL, BOTTOM_LEDS_PIN>(bottomLeds, NUM_LEDS_HORIZONTAL);
-   FastLED.addLeds<NEOPIXEL, RIGHT_LEDS_PIN>(rightLeds, NUM_LEDS_VERTICAL);   
-   
-   FastLED.setBrightness(MASTER_BRIGHTNESS);
-   setAllOff();
-   FastLED.show();
-
-   #ifndef UCONFIG
-     DBG("Top LEDs present!");
-   #endif
-   DBG("READY V:%u H:%u VH:%u Total:%u\n",NUM_LEDS_VERTICAL, NUM_LEDS_HORIZONTAL, NUM_LEDS_VH, NUM_LEDS_TOTAL);
-}
-
+/*
 void monitorModeButton(){
   DBG("Btn monitor");
   if(digitalRead(MODE_CHANGE_PIN)==0){
@@ -182,6 +178,7 @@ void monitorModeButton(){
     handleAnimation();
   }
 }
+*/
 
 void setBuiltinLed(bool turnedOn){
   if (turnedOn){
@@ -192,6 +189,7 @@ void setBuiltinLed(bool turnedOn){
   }
 }
 
+/*
 void handleAnimation(){  
   if(animationType==0){
     currentPalette = RainbowColors_p;
@@ -205,6 +203,7 @@ void handleAnimation(){
     ledAnim.SolidRainbowCycle();
   } 
 }
+*/
 
 void RunningPixel(){
   setAllOff();  // TODO: can be significantly improved with prevIndex
