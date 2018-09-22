@@ -45,14 +45,14 @@ LedCommonActions ledCommonActions(leftLeds, rightLeds, bottomLeds);
 
 AnimMeteor animMeteor(bottomLeds, NUM_LEDS_HORIZONTAL);
 
-int animStep=0;
-int animationType=0;
-#define MAX_ANIMATION_TYPE 2
-
 CRGBPalette16 currentPalette;
 
-uint32_t btnMillis;
-uint32_t animMillis;
+uint32_t btnMillis=millis();
+uint32_t animMillis=millis();
+
+#define ANIM_COUNT 4
+AnimType _demoAnims[]={AnimType::TestRGB, AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR};
+int _animIndex=0;
 
 void setup() {
 
@@ -98,41 +98,29 @@ void setup() {
     DBG("OTA ready");    
   }
 
-  btnMillis = millis()+1000;
-  animMillis = millis()+3000;
   //animMeteor.Setup(true); // invert animation, can be included into animate
+  animController.ChangeAnim(_demoAnims[_animIndex]);
 }
 
 void loop() {
   if(ota_enabled == 1 || OTA_ON == 1){
     ArduinoOTA.handle();
   }
-  
-  animController.ChangeAnim(AnimType::TestRGB);
-  while(!animController.AnimComplete){
-    animController.Animate();
-    delay(1000);
-  }
-  
-  animController.ChangeAnim(AnimType::RunningPixel);
-  while(!animController.AnimComplete){
-    animController.Animate();
-    delay(100);
-  }
-  
-  animController.ChangeAnim(AnimType::SolidColorCycle);
-  while(!animController.AnimComplete){
-    animController.Animate();
-    delay(100);
-  }
-  
-  animController.ChangeAnim(AnimType::ScrollPaletteLtR);
-  while(!animController.AnimComplete){
-    animController.Animate();
-    delay(300);
-  }
 
-  
+  if(millis()>animMillis){
+    animController.Animate();
+    if(animController.AnimComplete){
+      if(_animIndex == ANIM_COUNT - 1){
+        _animIndex=0;
+      }
+      else{
+        _animIndex++;
+      }
+      animController.ChangeAnim(_demoAnims[_animIndex]);
+    }
+    animMillis = millis()+200;
+  }
+    
   // animMeteor.Animate(CRGB::Yellow, 3, 50, true);
    // EVERY_N_SECONDS(1){monitorModeButton();}
    // EVERY_N_SECONDS(2){handleAnimation();}
@@ -178,7 +166,7 @@ void monitorModeButton(){
     else{
       animationType++;
     }
-    animStep=0;
+    //animStep=0;
     handleAnimation();
   }
 }
