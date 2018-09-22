@@ -13,7 +13,7 @@
 #include "LedConfig.h"
 #include "WifiConfig.h"
 
-#include "LeftToRightIndexer.h"
+//#include "LeftToRightIndexer.h"
 #include "LedCommonActions.h"
 #include "AnimController.h"
 
@@ -37,14 +37,12 @@ CRGB bottomLeds[NUM_LEDS_HORIZONTAL];
 CRGB topLeds[NUM_LEDS_HORIZONTAL];
 #endif
 
-//LedUniverse *ledUniverse = new LedUniverse();
 LedUniverse ledUniverse;
-AnimController animController(ledUniverse.Leds);
+AnimController animController(&ledUniverse);
 
-LeftToRightIndexer leftToRightIndexer(leftLeds, rightLeds, bottomLeds);
+//LeftToRightIndexer leftToRightIndexer(leftLeds, rightLeds, bottomLeds);
 LedCommonActions ledCommonActions(leftLeds, rightLeds, bottomLeds);
 
-// AnimMeteor animMeteor(leftLeds, NUM_LEDS_VERTICAL);
 AnimMeteor animMeteor(bottomLeds, NUM_LEDS_HORIZONTAL);
 
 int animStep=0;
@@ -65,8 +63,6 @@ void setup() {
    #endif
    DBG("Start\n");
 
-   //ledUniverse=new LedUniverse();
-   //ledUniverse->Setup();
    ledUniverse.Setup();
    
    // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
@@ -112,22 +108,30 @@ void loop() {
     ArduinoOTA.handle();
   }
   
-  //simple_palette_scroll(100);
+  animController.ChangeAnim(AnimType::TestRGB);
+  while(!animController.AnimComplete){
+    animController.Animate();
+    delay(1000);
+  }
   
-  animController.Animate();
-  delay(3000);
-  /*
-  fill_solid(leds, NUM_LEDS_TOTAL, CRGB::Green);
-  FastLED.show();
-  delay(3000);
-  fill_solid(leds, NUM_LEDS_TOTAL, CRGB::Red);
-  FastLED.show();
-  delay(3000);
-  */
+  animController.ChangeAnim(AnimType::RunningPixel);
+  while(!animController.AnimComplete){
+    animController.Animate();
+    delay(100);
+  }
   
-  //RunningPixel();
-  //FastLED.show();
+  animController.ChangeAnim(AnimType::SolidColorCycle);
+  while(!animController.AnimComplete){
+    animController.Animate();
+    delay(100);
+  }
   
+  animController.ChangeAnim(AnimType::ScrollPaletteLtR);
+  while(!animController.AnimComplete){
+    animController.Animate();
+    delay(300);
+  }
+
   
   // animMeteor.Animate(CRGB::Yellow, 3, 50, true);
    // EVERY_N_SECONDS(1){monitorModeButton();}
@@ -186,73 +190,5 @@ void setBuiltinLed(bool turnedOn){
   }
   else{
     digitalWrite(BUILTIN_LED_PIN, HIGH);
-  }
-}
-
-/*
-void handleAnimation(){  
-  if(animationType==0){
-    currentPalette = RainbowColors_p;
-    paletteScroll();
-  }
-  else if (animationType==1){
-    currentPalette = CloudColors_p;
-    paletteScroll();
-  }
-  else{
-    ledAnim.SolidRainbowCycle();
-  } 
-}
-*/
-
-void RunningPixel(){
-  setAllOff();  // TODO: can be significantly improved with prevIndex
-
-  leftToRightIndexer.SetColor(animStep, CRGB::Blue);
-
-  DBG("step %u\n", animStep);
-
-  animStep = animStep + 1;
-  if(animStep == 216){
-    animStep = 0;
-  }
-}
-
-void paletteScroll(){
-  int colorOffset = animStep;
-  for(int i=0; i<NUM_LEDS_TOTAL; i++){    
-    CRGB paletteColor = ColorFromPalette(currentPalette, colorOffset, 255, LINEARBLEND);
-    
-    DBG("Led:%u Offset:%u\n", i, colorOffset);
-    leftToRightIndexer.SetColor(i, paletteColor);
-    colorOffset += 1;
-  }
-  animStep++;
-  if(animStep > 255){ // TODO: check if this overflows automatically
-    animStep=0;
-  }
-  DBG("step %u\n", animStep);
-}
-
-void simple_palette_scroll(uint8_t colorOffset){
-  for(int i=0; i<NUM_LEDS_VERTICAL; i++){
-    leftLeds[i] = ColorFromPalette(RainbowColors_p, colorOffset, 255, LINEARBLEND);
-    rightLeds[i] = ColorFromPalette(RainbowColors_p, colorOffset, 255, LINEARBLEND);
-    colorOffset += 4;
-  }
-
-  for(int i=0; i<NUM_LEDS_HORIZONTAL; i++){
-    bottomLeds[i] = CRGB::Red;
-  }
-}
-
-void setAllOff(){
-  for(int i=0; i<NUM_LEDS_VERTICAL; i++){
-    leftLeds[i] = CRGB::Black;
-    rightLeds[i] = CRGB::Black;
-  }
-
-  for(int i=0; i<NUM_LEDS_HORIZONTAL; i++){
-    bottomLeds[i] = CRGB::Black;
   }
 }

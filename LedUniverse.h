@@ -4,11 +4,16 @@
 #include "FastLED.h"
 #include "LedConfig.h"
 
+#include "LeftToRightIndexer.h"
+
 class LedUniverse{
   public:
     LedUniverse();
     void Setup();
-    CRGB Leds[NUM_LEDS_TOTAL];
+    CRGB LedsLeft[NUM_LEDS_VERTICAL];
+    CRGB LedsBottom[NUM_LEDS_HORIZONTAL];
+    CRGB LedsRight[NUM_LEDS_VERTICAL];
+    LeftToRightIndexer *LtRIndexer; 
 };
 
 #endif
