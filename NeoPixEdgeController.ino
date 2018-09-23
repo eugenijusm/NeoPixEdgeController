@@ -13,13 +13,9 @@
 #include "LedConfig.h"
 #include "WifiConfig.h"
 
-//#include "LeftToRightIndexer.h"
-#include "LedCommonActions.h"
 #include "AnimController.h"
 
 #include "LedUniverse.h"
-#include "AnimMeteor.h"
-
 #include "Dbg.h"
  
 #define OTA_ON 0  // Set to 1 to Force OTA
@@ -29,23 +25,8 @@
 int ota_enabled = 0;
 #define MODE_CHANGE_PIN 13 // 13 = D7; 12 = D6
 
-
-CRGB leftLeds[NUM_LEDS_VERTICAL];
-CRGB rightLeds[NUM_LEDS_VERTICAL];
-CRGB bottomLeds[NUM_LEDS_HORIZONTAL];
-#ifndef UCONFIG
-CRGB topLeds[NUM_LEDS_HORIZONTAL];
-#endif
-
 LedUniverse ledUniverse;
 AnimController animController(&ledUniverse);
-
-//LeftToRightIndexer leftToRightIndexer(leftLeds, rightLeds, bottomLeds);
-LedCommonActions ledCommonActions(leftLeds, rightLeds, bottomLeds);
-
-AnimMeteor animMeteor(bottomLeds, NUM_LEDS_HORIZONTAL);
-
-CRGBPalette16 currentPalette;
 
 uint32_t btnMillis=millis();
 uint32_t animMillis=millis();
@@ -97,8 +78,7 @@ void setup() {
 
     DBG("OTA ready");    
   }
-
-  //animMeteor.Setup(true); // invert animation, can be included into animate
+  
   animController.ChangeAnim(_demoAnims[_animIndex]);
 }
 
@@ -120,8 +100,7 @@ void loop() {
     }
     animMillis = millis()+200;
   }
-    
-  // animMeteor.Animate(CRGB::Yellow, 3, 50, true);
+  
    // EVERY_N_SECONDS(1){monitorModeButton();}
    // EVERY_N_SECONDS(2){handleAnimation();}
    //if(btnMillis>millis()){

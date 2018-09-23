@@ -1,3 +1,13 @@
+/*
+ * Previous usage:
+#include "AnimMeteor.h"
+AnimMeteor animMeteor(bottomLeds, NUM_LEDS_HORIZONTAL);
+
+animMeteor.Setup(true); // invert animation, can be included into animate
+
+// animMeteor.Animate(CRGB::Yellow, 3, 50, true);
+*/
+
 #include "AnimMeteor.h"
 
 AnimMeteor::AnimMeteor(CRGB *ledArray, int stripSize){

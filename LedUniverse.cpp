@@ -21,14 +21,18 @@ void LedUniverse::Setup(){
    */
    
    FastLED.setBrightness(MASTER_BRIGHTNESS);
-   fill_solid(LedsLeft, NUM_LEDS_VERTICAL, CRGB::Black);
-   fill_solid(LedsRight, NUM_LEDS_VERTICAL, CRGB::Black);
-   fill_solid(LedsBottom, NUM_LEDS_HORIZONTAL, CRGB::Black);
+   FillSingleColor(CRGB::Black);   
    FastLED.show();
 
    #ifndef UCONFIG
      DBG("Top LEDs present!");
    #endif
    DBG("READY V:%u H:%u VH:%u Total:%u\n",NUM_LEDS_VERTICAL, NUM_LEDS_HORIZONTAL, NUM_LEDS_VH, NUM_LEDS_TOTAL);
+}
+
+void LedUniverse::FillSingleColor(CRGB color){
+  fill_solid(LedsLeft, NUM_LEDS_VERTICAL, color);
+   fill_solid(LedsRight, NUM_LEDS_VERTICAL, color);
+   fill_solid(LedsBottom, NUM_LEDS_HORIZONTAL, color);
 }
 

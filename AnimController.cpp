@@ -31,14 +31,14 @@ void AnimController::Animate(){ // TODO: extract to exact animation classes
 
 void AnimController::Animate_TestRGB(){
   if (_animStep==0){
-    fill_solid(_ledUniverse->LedsLeft, NUM_LEDS_VERTICAL, CRGB::Red);  
+    _ledUniverse->FillSingleColor(CRGB::Red);
     AnimComplete=false;
   }
   else if (_animStep==1){
-    fill_solid(_ledUniverse->LedsLeft, NUM_LEDS_VERTICAL, CRGB::Green);
+    _ledUniverse->FillSingleColor(CRGB::Green);
   }
   else if (_animStep==2){
-    fill_solid(_ledUniverse->LedsLeft, NUM_LEDS_VERTICAL, CRGB::Blue);
+    _ledUniverse->FillSingleColor(CRGB::Blue);
   }
   _animStep++;
   if(_animStep>2){
@@ -53,7 +53,7 @@ void AnimController::Animate_SolidColorCycle(){
   }
   
   CRGB color = ColorFromPalette(RainbowColors_p, _animStep, 255, LINEARBLEND);
-  fill_solid(_ledUniverse->LedsRight, NUM_LEDS_VERTICAL, color);
+  _ledUniverse->FillSingleColor(color);
    
   _animStep++;   
   if(_animStep == 256){
@@ -65,16 +65,13 @@ void AnimController::Animate_SolidColorCycle(){
 void AnimController::Animate_RunningPixel(){
   if(_animStep==0){
     _ledUniverse->LtRIndexer->SetColor(NUM_LEDS_TOTAL-1, CRGB::Black);
-    //_leds[NUM_LEDS_TOTAL-1]= CRGB::Black;
     AnimComplete=false;
   }
   else{
     _ledUniverse->LtRIndexer->SetColor(_animStep-1, CRGB::Black);
-    //_leds[_animStep-1]= CRGB::Black;
   }
   CRGB color = ColorFromPalette(RainbowColors_p, _animStep, 255, LINEARBLEND);    // TODO: cover whole range
   _ledUniverse->LtRIndexer->SetColor(_animStep, color);
-  //_leds[_animStep]= color;
 
   _animStep++;
   if(_animStep == NUM_LEDS_TOTAL){
@@ -90,7 +87,7 @@ void AnimController::Animate_ScrollPaletteLtR(){
   
   int colorOffset = _animStep;
   for(int i=0; i<NUM_LEDS_TOTAL; i++){    
-    CRGB paletteColor = ColorFromPalette(RainbowColors_p, colorOffset); // <--- palette, e.g. CloudColors_p
+    CRGB paletteColor = ColorFromPalette(CloudColors_p, colorOffset); // <--- palette, e.g. CloudColors_p, RainbowColors_p
         
     _ledUniverse->LtRIndexer->SetColor(i, paletteColor);
     colorOffset += 1;
@@ -106,9 +103,7 @@ void AnimController::Animate_ScrollPaletteLtR(){
 
 
 void AnimController::ChangeAnim(AnimType animType){   // TODO: return default step delay?
-  fill_solid(_ledUniverse->LedsLeft, NUM_LEDS_VERTICAL, CRGB::Black);
-  fill_solid(_ledUniverse->LedsRight, NUM_LEDS_VERTICAL, CRGB::Black);
-  fill_solid(_ledUniverse->LedsBottom, NUM_LEDS_HORIZONTAL, CRGB::Black);
+  _ledUniverse->FillSingleColor(CRGB::Black);
   _animType = animType;
   _animStep=0;
   AnimComplete=false;
