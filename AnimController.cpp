@@ -25,7 +25,11 @@ void AnimController::Animate(){ // TODO: extract to exact animation classes
   else if(_animType==AnimType::ScrollPaletteLtR){
     DBG("Scroll LtR\n");
     Animate_ScrollPaletteLtR();
-  }  
+  }
+  else if(_animType==AnimType::HeatFlow){
+    DBG("Heat flow\n");
+    Animate_HeatFlow();
+  }
   FastLED.show();
 }
 
@@ -101,10 +105,32 @@ void AnimController::Animate_ScrollPaletteLtR(){
   }
 }
 
+void AnimController::Animate_HeatFlow(){
+  int lastIndex = NUM_LEDS_HALF - 1;
+  int idx = lastIndex - _animStep;
+  if(_animStep==0){
+    AnimComplete=false;
+   _ledUniverse->FillSingleColor(CRGB::Black); 
+  }
+  else{
+    _ledUniverse->VerticalIndexer->SetColor(idx, _ledUniverse->VerticalIndexer->GetColor(idx+1));
+  }
+
+  int colorIndex = _animStep*2;
+  //DBG("sk:%u vard:%u val:%u colorIndex:%u\n", (lastIndex-_animStep), lastIndex, (lastIndex-_animStep)/lastIndex, colorIndex);
+  CRGB paletteColor = ColorFromPalette(LavaColors_p, colorIndex);  //HeatColors_p
+  _ledUniverse->VerticalIndexer->SetColor(idx, paletteColor);
+  
+  _animStep++;
+  if(_animStep > NUM_LEDS_HALF){
+    _animStep=0;
+    AnimComplete=true;
+  }
+}
 
 void AnimController::ChangeAnim(AnimType animType){   // TODO: return default step delay?
   _ledUniverse->FillSingleColor(CRGB::Black);
   _animType = animType;
-  _animStep=0;
+  _animStep=0;          // TODO: in most of the cases animation resets this, so it can consistently run more than once
   AnimComplete=false;
 }

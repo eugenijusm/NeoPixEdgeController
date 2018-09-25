@@ -31,8 +31,8 @@ AnimController animController(&ledUniverse);
 uint32_t btnMillis=millis();
 uint32_t animMillis=millis();
 
-#define ANIM_COUNT 4
-AnimType _demoAnims[]={AnimType::TestRGB, AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR};
+#define ANIM_COUNT 2
+AnimType _demoAnims[]={AnimType::TestRGB, AnimType::HeatFlow, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
 int _animIndex=0;
 
 void setup() {

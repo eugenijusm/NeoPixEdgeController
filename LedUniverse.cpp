@@ -14,7 +14,11 @@ void LedUniverse::Setup(){
 
    LtRIndexer = new LeftToRightIndexer();
    LtRIndexer->Setup(LedsLeft, LedsRight, LedsBottom);
+
+   VerticalIndexer = new SymVerticalIndexer();
+   VerticalIndexer->Setup(LedsLeft, LedsRight, LedsBottom);
   /*
+   * Single array approach, not suitable because both vertical strips indexing physically starts at the bottom
    FastLED.addLeds<NEOPIXEL, LEFT_LEDS_PIN>(Leds, 0, NUM_LEDS_VERTICAL);  // start index, size
    FastLED.addLeds<NEOPIXEL, BOTTOM_LEDS_PIN>(Leds, NUM_LEDS_VERTICAL, NUM_LEDS_HORIZONTAL);
    FastLED.addLeds<NEOPIXEL, RIGHT_LEDS_PIN>(Leds, NUM_LEDS_VH, NUM_LEDS_VERTICAL);
@@ -35,4 +39,3 @@ void LedUniverse::FillSingleColor(CRGB color){
    fill_solid(LedsRight, NUM_LEDS_VERTICAL, color);
    fill_solid(LedsBottom, NUM_LEDS_HORIZONTAL, color);
 }
-

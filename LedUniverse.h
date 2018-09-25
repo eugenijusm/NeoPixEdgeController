@@ -5,6 +5,7 @@
 #include "LedConfig.h"
 
 #include "LeftToRightIndexer.h"
+#include "SymVerticalIndexer.h"
 
 class LedUniverse{
   public:
@@ -14,7 +15,8 @@ class LedUniverse{
     CRGB LedsLeft[NUM_LEDS_VERTICAL];
     CRGB LedsBottom[NUM_LEDS_HORIZONTAL];
     CRGB LedsRight[NUM_LEDS_VERTICAL];
-    LeftToRightIndexer *LtRIndexer; 
+    LeftToRightIndexer *LtRIndexer;
+    SymVerticalIndexer *VerticalIndexer;
 };
 
 #endif

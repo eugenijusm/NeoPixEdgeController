@@ -9,7 +9,8 @@ enum AnimType{
   TestRGB,
   SolidColorCycle,
   RunningPixel,
-  ScrollPaletteLtR
+  ScrollPaletteLtR,
+  HeatFlow
 };
 
 class AnimController{
@@ -27,5 +28,6 @@ class AnimController{
     void Animate_SolidColorCycle();
     void Animate_RunningPixel();
     void Animate_ScrollPaletteLtR();
+    void Animate_HeatFlow();
 };
 #endif
