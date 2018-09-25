@@ -4,7 +4,7 @@
 // http://esp8266.github.io/Arduino/versions/2.1.0-rc2/doc/reference.html
 
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
+#include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
@@ -35,9 +35,12 @@ uint32_t animMillis=millis();
 AnimType _demoAnims[]={AnimType::TestRGB, AnimType::HeatFlow, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
 int _animIndex=0;
 
+ESP8266WebServer server(80);
+
 void setup() {
 
   WiFi.persistent(false); // Do not persist Wifi settings; doesn't seem to work :/
+  setup_wifi();  // must be done as early as possible; stops working if led is touched first :/
   
    #ifdef DEBUG_ESP_PORT
       Serial.begin(115200);      
@@ -53,8 +56,7 @@ void setup() {
      ota_enabled = 1;
    }
 
-   if(ota_enabled == 1 || OTA_ON == 1){
-     setup_wifi();  // must be done as early as possible; stops working if led is touched first :/
+   if(ota_enabled == 1 || OTA_ON == 1){     
      DBG("Init OTA");
 
      pinMode(BUILTIN_LED_PIN, OUTPUT);
@@ -63,29 +65,40 @@ void setup() {
      setBuiltinLed(false);
 
     ArduinoOTA.setHostname(host);
+    /*
     ArduinoOTA.onStart([]() {
       setBuiltinLed(true);
-      DBG("Ota start");
+      //DBG("Ota start");
     });
     
     ArduinoOTA.onEnd([]() {
       setBuiltinLed(false);
-      DBG("Ota end");
+      //DBG("Ota end");
     });
-    
+    */
     ArduinoOTA.onError([](ota_error_t error) { ESP.restart(); });
     ArduinoOTA.begin();
 
     DBG("OTA ready");    
   }
+
+  server.on("/palette", handlePallete);
+  server.on("/", []() {
+    server.send(200, "text/plain", "Neopixel Edge Controller");
+  });
+  server.onNotFound(handleNotFound);
+  server.begin();
+  Serial.println("HTTP server started");
   
-  animController.ChangeAnim(_demoAnims[_animIndex]);
+  animController.ChangeAnim(_demoAnims[_animIndex]); 
 }
 
 void loop() {
   if(ota_enabled == 1 || OTA_ON == 1){
     ArduinoOTA.handle();
   }
+
+  server.handleClient();
 
   if(millis()>animMillis){
     animController.Animate();
@@ -98,7 +111,7 @@ void loop() {
       }
       animController.ChangeAnim(_demoAnims[_animIndex]);
     }
-    animMillis = millis()+200;
+    animMillis = millis()+3000;
   }
   
    // EVERY_N_SECONDS(1){monitorModeButton();}
@@ -116,6 +129,28 @@ void loop() {
     animMillis = millis()+3000;
    }
    */
+}
+
+void handlePallete(){
+  animController.ChangeAnim(AnimType::Static_VPallete);
+  server.send(200, "text/plain", "Ok");
+}
+
+void handleNotFound() {
+  //digitalWrite(led, 1);
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+  //digitalWrite(led, 0);
 }
 
 

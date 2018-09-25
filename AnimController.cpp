@@ -30,8 +30,22 @@ void AnimController::Animate(){ // TODO: extract to exact animation classes
     DBG("Heat flow\n");
     Animate_HeatFlow();
   }
+  else if(_animType==AnimType::Static_VPallete){
+    DBG("Static v palette\n");
+    View_VPallete();
+  }
   FastLED.show();
 }
+
+
+void AnimController::View_VPallete(){
+  for (uint8_t i=0; i<NUM_LEDS_HALF; i++){
+    uint8_t colorIndex = map(i, 0, NUM_LEDS_HALF, 0, 255);
+    CRGB color = ColorFromPalette(RainbowColors_p, colorIndex);
+    _ledUniverse->VerticalIndexer->SetColor(i, color);
+  }
+}
+
 
 void AnimController::Animate_TestRGB(){
   if (_animStep==0){

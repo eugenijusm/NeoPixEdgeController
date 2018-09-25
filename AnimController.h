@@ -10,7 +10,8 @@ enum AnimType{
   SolidColorCycle,
   RunningPixel,
   ScrollPaletteLtR,
-  HeatFlow
+  HeatFlow,
+  Static_VPallete
 };
 
 class AnimController{
@@ -29,5 +30,7 @@ class AnimController{
     void Animate_RunningPixel();
     void Animate_ScrollPaletteLtR();
     void Animate_HeatFlow();
+
+    void View_VPallete();
 };
 #endif
