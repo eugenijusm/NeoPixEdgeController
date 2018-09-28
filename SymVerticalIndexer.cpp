@@ -9,29 +9,29 @@ void SymVerticalIndexer::Setup(CRGB *left, CRGB *right, CRGB *bottom){//, CRGB *
   //_top = top;
 }
 
-void SymVerticalIndexer::SetColor(int index, CRGB color){
+void SymVerticalIndexer::SetColor(uint8_t index, CRGB color){
   if(index < NUM_LEDS_HH){
     _bottom[NUM_LEDS_HH-index-1]= color;
     _bottom[NUM_LEDS_HH+index]= color;
-    DBG("B i1:%u i2:%u\n", (NUM_LEDS_HH-index-1), (NUM_LEDS_HH+index));
+    //DBG("B i1:%u i2:%u\n", (NUM_LEDS_HH-index-1), (NUM_LEDS_HH+index));
   }
 
   else if(index >= NUM_LEDS_HH){
-    int idx = index-NUM_LEDS_HH;
+    uint8_t idx = index-NUM_LEDS_HH;
     _left[idx]=color;
     _right[idx]=color;
-    DBG("LR idx:%u index:%u hh:%u\n", idx, index, NUM_LEDS_HH);
+    //DBG("LR idx:%u index:%u hh:%u\n", idx, index, NUM_LEDS_HH);
   }  
 }
 
-CRGB SymVerticalIndexer::GetColor(int index){
+CRGB SymVerticalIndexer::GetColor(uint8_t index){
   if(index < NUM_LEDS_HH){
     return _bottom[NUM_LEDS_HH-index-1];
     // _bottom[NUM_LEDS_HH+index]    
   }
 
   else if(index >= NUM_LEDS_HH){
-    int idx = index-NUM_LEDS_HH;
+    uint8_t idx = index-NUM_LEDS_HH;
     return _left[idx];
     // _right[idx];
   }

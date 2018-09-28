@@ -10,7 +10,7 @@ animMeteor.Setup(true); // invert animation, can be included into animate
 
 #include "AnimMeteor.h"
 
-AnimMeteor::AnimMeteor(CRGB *ledArray, int stripSize){
+AnimMeteor::AnimMeteor(CRGB *ledArray, uint8_t stripSize){
   _ledArray = ledArray;
   _ledStripSize = stripSize;
   Setup(false);
@@ -19,21 +19,21 @@ AnimMeteor::AnimMeteor(CRGB *ledArray, int stripSize){
 void AnimMeteor::Animate(CRGB color, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay){
   // TODO: refactor to reuse routine from main file
   if(_animationStep==_animationStartIndex){
-    for(int i=0; i<_ledStripSize; i++){
+    for(uint8_t i=0; i<_ledStripSize; i++){
       _ledArray[i] = CRGB::Black;
     }
   }
   
   // fade brightness all LEDs one step
-  for(int j=0; j<_ledStripSize; j++) {
+  for(uint8_t j=0; j<_ledStripSize; j++) {
     if( (!meteorRandomDecay) || (random(10)>5) ) {
       FadeToBlack(j, meteorTrailDecay );        
     }
   }   
 
   // draw meteor
-  for(int j = 0; j < meteorSize; j++) {
-    int pixelIndex;
+  for(uint8_t j = 0; j < meteorSize; j++) {
+    uint8_t pixelIndex;
     if(_isInverted){
       pixelIndex =_animationStep-j;
     }
@@ -72,7 +72,6 @@ void AnimMeteor::Setup(bool isInverted){
   }
 }
 
-void AnimMeteor::FadeToBlack(int ledNo, byte fadeValue) {
+void AnimMeteor::FadeToBlack(uint8_t ledNo, byte fadeValue) {
   _ledArray[ledNo].fadeToBlackBy( fadeValue ); 
 }
-

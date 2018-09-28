@@ -26,26 +26,48 @@ void AnimController::Animate(){ // TODO: extract to exact animation classes
     DBG("Scroll LtR\n");
     Animate_ScrollPaletteLtR();
   }
-  else if(_animType==AnimType::HeatFlow){
-    DBG("Heat flow\n");
-    Animate_HeatFlow();
+  else if(_animType==AnimType::PaletteV){
+    DBG("Palette vertical\n");
+    CurrentPalette=RainbowColors_p;
+    Animate_PaletteVertical();
+  }  
+  FastLED.show();
+}
+
+void AnimController::ChangeAnim(AnimType animType){   // TODO: return default step delay?
+  _ledUniverse->FillSingleColor(CRGB::Black);
+  _animType=animType;  
+  _animStep=0;
+  AnimComplete=false;
+  if(animType==AnimType::TestRGB || animType==AnimType::SolidColorCycle || animType==AnimType::RunningPixel || animType==AnimType::ScrollPaletteLtR || animType==AnimType::  PaletteV){
+    IsStaticView=false; 
   }
-  else if(_animType==AnimType::Static_VPallete){
-    DBG("Static v palette\n");
-    View_VPallete();
+  else{
+    IsStaticView=true;
+  }
+}
+
+// ------------------------------------------------- Static views ------------------------------------------------------
+
+void AnimController::View_PalleteV(){
+  for (uint8_t i=0; i<NUM_LEDS_HALF; i++){
+    uint8_t colorIndex = map(i, 0, NUM_LEDS_HALF, 0, 255);
+    CRGB color = ColorFromPalette(CurrentPalette, colorIndex);
+    _ledUniverse->VerticalIndexer->SetColor(i, color);
   }
   FastLED.show();
 }
 
-
-void AnimController::View_VPallete(){
-  for (uint8_t i=0; i<NUM_LEDS_HALF; i++){
-    uint8_t colorIndex = map(i, 0, NUM_LEDS_HALF, 0, 255);
-    CRGB color = ColorFromPalette(RainbowColors_p, colorIndex);
-    _ledUniverse->VerticalIndexer->SetColor(i, color);
+void AnimController::View_PalleteH(){
+  for (uint8_t i=0; i<NUM_LEDS_TOTAL; i++){
+    uint8_t colorIndex = map(i, 0, NUM_LEDS_TOTAL, 0, 255);
+    CRGB color = ColorFromPalette(CurrentPalette, colorIndex);
+    _ledUniverse->LtRIndexer->SetColor(i, color);
   }
+  FastLED.show();
 }
 
+// ------------------------------------------------- Animations------------------------------------------------------
 
 void AnimController::Animate_TestRGB(){
   if (_animStep==0){
@@ -103,8 +125,8 @@ void AnimController::Animate_ScrollPaletteLtR(){
     AnimComplete=false;
   }
   
-  int colorOffset = _animStep;
-  for(int i=0; i<NUM_LEDS_TOTAL; i++){    
+  uint8_t colorOffset = _animStep;
+  for(uint8_t i=0; i<NUM_LEDS_TOTAL; i++){    
     CRGB paletteColor = ColorFromPalette(CloudColors_p, colorOffset); // <--- palette, e.g. CloudColors_p, RainbowColors_p
         
     _ledUniverse->LtRIndexer->SetColor(i, paletteColor);
@@ -119,32 +141,29 @@ void AnimController::Animate_ScrollPaletteLtR(){
   }
 }
 
-void AnimController::Animate_HeatFlow(){
-  int lastIndex = NUM_LEDS_HALF - 1;
-  int idx = lastIndex - _animStep;
-  if(_animStep==0){
-    AnimComplete=false;
-   _ledUniverse->FillSingleColor(CRGB::Black); 
-  }
-  else{
-    _ledUniverse->VerticalIndexer->SetColor(idx, _ledUniverse->VerticalIndexer->GetColor(idx+1));
-  }
-
-  int colorIndex = _animStep*2;
-  //DBG("sk:%u vard:%u val:%u colorIndex:%u\n", (lastIndex-_animStep), lastIndex, (lastIndex-_animStep)/lastIndex, colorIndex);
-  CRGB paletteColor = ColorFromPalette(LavaColors_p, colorIndex);  //HeatColors_p
-  _ledUniverse->VerticalIndexer->SetColor(idx, paletteColor);
+// animStep acts as pallete offset
+void AnimController::Animate_PaletteVertical(){
+  for (uint8_t i=0; i<NUM_LEDS_HALF; i++){
+    uint8_t offsetVal=i+_animStep;
+    uint8_t colorIndex;
+  
+    if(offsetVal < NUM_LEDS_HALF){
+      colorIndex = map(offsetVal, 0, NUM_LEDS_HALF, 0, 255);    
+      DBG("A");
+    }
+    else{
+      colorIndex = map(offsetVal-NUM_LEDS_HALF, 0, NUM_LEDS_HALF, 0, 255);    
+      DBG("B");
+    }
+    DBG("i:%u step:%u colorIndx:%u offsetVal:%u\n", i, _animStep, colorIndex, offsetVal);
+    CRGB color = ColorFromPalette(CurrentPalette, colorIndex);
+    _ledUniverse->VerticalIndexer->SetColor(i, color);
+  }  
+  
   
   _animStep++;
   if(_animStep > NUM_LEDS_HALF){
     _animStep=0;
     AnimComplete=true;
   }
-}
-
-void AnimController::ChangeAnim(AnimType animType){   // TODO: return default step delay?
-  _ledUniverse->FillSingleColor(CRGB::Black);
-  _animType = animType;
-  _animStep=0;          // TODO: in most of the cases animation resets this, so it can consistently run more than once
-  AnimComplete=false;
 }

@@ -22,7 +22,7 @@
 
 #define BUILTIN_LED_PIN 2 // D4
 #define OTA_ENABLE_PIN 14 // D5
-int ota_enabled = 0;
+uint8_t ota_enabled = 0;
 #define MODE_CHANGE_PIN 13 // 13 = D7; 12 = D6
 
 LedUniverse ledUniverse;
@@ -32,25 +32,162 @@ uint32_t btnMillis=millis();
 uint32_t animMillis=millis();
 
 #define ANIM_COUNT 2
-AnimType _demoAnims[]={AnimType::TestRGB, AnimType::HeatFlow, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
-int _animIndex=0;
+AnimType _demoAnims[]={AnimType::TestRGB, AnimType::PaletteV, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
+uint8_t _animIndex=0;
 
-ESP8266WebServer server(80);
+ESP8266WebServer webServer(80);
 
-void setup() {
-
-  WiFi.persistent(false); // Do not persist Wifi settings; doesn't seem to work :/
+void setup() {  
+  //WiFi.persistent(false);
   setup_wifi();  // must be done as early as possible; stops working if led is touched first :/
-  
-   #ifdef DEBUG_ESP_PORT
-      Serial.begin(115200);      
-   #endif
-   DBG("Start\n");
+  #ifdef DEBUG_ESP_PORT
+     Serial.begin(115200);      
+  #endif
+  DBG("Start\n");
+  ledUniverse.Setup();
+  // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
+  setup_OTA();
+  setup_WebServer();
+  animController.ChangeAnim(_demoAnims[_animIndex]); 
+}
 
-   ledUniverse.Setup();
-   
-   // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
-   
+void loop() {
+  if(ota_enabled == 1 || OTA_ON == 1){
+    ArduinoOTA.handle();
+  }
+
+  webServer.handleClient();
+
+  if(!animController.IsStaticView && millis()>animMillis){
+    animController.Animate();
+    if(animController.AnimComplete){
+      if(_animIndex == ANIM_COUNT - 1){
+        _animIndex=0;
+      }
+      else{
+        _animIndex++;
+      }
+      animController.ChangeAnim(_demoAnims[_animIndex]);
+    }
+    animMillis = millis()+300;
+  }
+  
+   // EVERY_N_SECONDS(1){monitorModeButton();}
+   // EVERY_N_SECONDS(2){handleAnimation();}
+   //if(btnMillis>millis()){
+   //   monitorModeButton();
+   //   btnMillis = millis()+1000;
+   //}
+
+
+   /*
+   if(animMillis>millis()){
+        ledAnim.SolidRainbowCycle(); // TODO: should be like this
+    FastLED.show();  
+    animMillis = millis()+3000;
+   }
+   */
+}
+
+void handlePallete(){
+  animController.ChangeAnim(AnimType::Static_PalleteV);
+  animController.View_PalleteV();    // NOTE: maybe it's better to keep animation loop and play around with isAnimationComplete flag; instead of invoking this directly?
+  webServer.send(200, "text/plain", "Ok");
+}
+
+void handlePalleteH(){
+  animController.ChangeAnim(AnimType::Static_PalleteH);
+  String qPalleteCode = webServer.arg("pallete");
+  switch(qPalleteCode.toInt()){
+     case 1:
+        animController.CurrentPalette=RainbowColors_p;
+        break;
+     case 2:
+        animController.CurrentPalette=CloudColors_p;
+        break;
+     case 3:
+        animController.CurrentPalette=LavaColors_p;
+        break;
+     case 4:
+        animController.CurrentPalette=OceanColors_p;
+        break;
+     case 5:
+        animController.CurrentPalette=ForestColors_p;
+        break;
+     case 6:
+        animController.CurrentPalette=PartyColors_p;
+        break;
+     case 7:
+        animController.CurrentPalette=HeatColors_p;
+        break;
+     default:
+        animController.CurrentPalette=RainbowStripeColors_p;
+  }
+  animController.View_PalleteH();
+  webServer.send(200, "text/plain", "Ok");
+}
+
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += webServer.uri();
+  message += "\nMethod: ";
+  message += (webServer.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += webServer.args();
+  message += "\n";
+  for (uint8_t i = 0; i < webServer.args(); i++) {
+    message += " " + webServer.argName(i) + ": " + webServer.arg(i) + "\n";
+  }
+  webServer.send(404, "text/plain", message);
+}
+
+
+void setup_wifi(){
+  DBG("Wifi Setup");
+
+  // Wifi client mode
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+     
+  while (WiFi.status() != WL_CONNECTED){
+    DBG(".");
+    delay (1000);       
+  }
+  
+  DBG("Wifi Ok");
+}
+
+void setup_WebServer(){
+  webServer.on("/palette", handlePallete);
+  webServer.on("/paletteH", handlePalleteH);
+  webServer.on("/", []() {
+    webServer.send(200, "text/plain", "Neopixel Edge Controller");
+  });
+  webServer.onNotFound(handleNotFound);
+  webServer.begin();
+  DBG("HTTP server started");
+}
+
+/*
+void monitorModeButton(){
+  DBG("Btn monitor");
+  if(digitalRead(MODE_CHANGE_PIN)==0){
+    DBG("Btn pressed");
+  }
+}
+*/
+
+void setBuiltinLed(bool turnedOn){
+  if (turnedOn){
+    digitalWrite(BUILTIN_LED_PIN, LOW);  // led inverted => led on
+  }
+  else{
+    digitalWrite(BUILTIN_LED_PIN, HIGH);
+  }
+}
+
+void setup_OTA(){
    pinMode(OTA_ENABLE_PIN, INPUT_PULLUP);
    if(digitalRead(OTA_ENABLE_PIN)==0){
      ota_enabled = 1;
@@ -80,117 +217,5 @@ void setup() {
     ArduinoOTA.begin();
 
     DBG("OTA ready");    
-  }
-
-  server.on("/palette", handlePallete);
-  server.on("/", []() {
-    server.send(200, "text/plain", "Neopixel Edge Controller");
-  });
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial.println("HTTP server started");
-  
-  animController.ChangeAnim(_demoAnims[_animIndex]); 
-}
-
-void loop() {
-  if(ota_enabled == 1 || OTA_ON == 1){
-    ArduinoOTA.handle();
-  }
-
-  server.handleClient();
-
-  if(millis()>animMillis){
-    animController.Animate();
-    if(animController.AnimComplete){
-      if(_animIndex == ANIM_COUNT - 1){
-        _animIndex=0;
-      }
-      else{
-        _animIndex++;
-      }
-      animController.ChangeAnim(_demoAnims[_animIndex]);
-    }
-    animMillis = millis()+3000;
-  }
-  
-   // EVERY_N_SECONDS(1){monitorModeButton();}
-   // EVERY_N_SECONDS(2){handleAnimation();}
-   //if(btnMillis>millis()){
-   //   monitorModeButton();
-   //   btnMillis = millis()+1000;
-   //}
-
-
-   /*
-   if(animMillis>millis()){
-        ledAnim.SolidRainbowCycle(); // TODO: should be like this
-    FastLED.show();  
-    animMillis = millis()+3000;
-   }
-   */
-}
-
-void handlePallete(){
-  animController.ChangeAnim(AnimType::Static_VPallete);
-  server.send(200, "text/plain", "Ok");
-}
-
-void handleNotFound() {
-  //digitalWrite(led, 1);
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
-  //digitalWrite(led, 0);
-}
-
-
-void setup_wifi(){
-  DBG("Wifi Setup");
-
-  // Wifi client mode
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-     
-  while (WiFi.status() != WL_CONNECTED){
-    DBG(".");
-    delay (1000);       
-  }
-  
-  DBG("Wifi Ok");
-}
-/*
-void monitorModeButton(){
-  DBG("Btn monitor");
-  if(digitalRead(MODE_CHANGE_PIN)==0){
-    DBG("Btn pressed");
-
-    if(animationType==MAX_ANIMATION_TYPE){
-      animationType=0;
-    }
-    else{
-      animationType++;
-    }
-    //animStep=0;
-    handleAnimation();
-  }
-}
-*/
-
-void setBuiltinLed(bool turnedOn){
-  if (turnedOn){
-    digitalWrite(BUILTIN_LED_PIN, LOW);  // led inverted => led on
-  }
-  else{
-    digitalWrite(BUILTIN_LED_PIN, HIGH);
-  }
+  }  
 }

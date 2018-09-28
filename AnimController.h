@@ -5,13 +5,14 @@
 #include "LeftToRightIndexer.h"
 #include "LedUniverse.h"
 
-enum AnimType{
+enum AnimType{    // TODO: this now holds not only animations, rename to view type or smth
   TestRGB,
   SolidColorCycle,
   RunningPixel,
   ScrollPaletteLtR,
-  HeatFlow,
-  Static_VPallete
+  PaletteV,
+  Static_PalleteV,
+  Static_PalleteH
 };
 
 class AnimController{
@@ -20,8 +21,14 @@ class AnimController{
     void Animate();
     void ChangeAnim(AnimType animType);
     bool AnimComplete;
+    bool IsStaticView;
+    CRGBPalette16 CurrentPalette;
+
+
+    void View_PalleteV();
+    void View_PalleteH();
   private:
-    int _animStep;
+    uint8_t _animStep;
     LedUniverse *_ledUniverse;
     AnimType _animType;
 
@@ -29,8 +36,8 @@ class AnimController{
     void Animate_SolidColorCycle();
     void Animate_RunningPixel();
     void Animate_ScrollPaletteLtR();
-    void Animate_HeatFlow();
+    void Animate_PaletteVertical();
 
-    void View_VPallete();
+    
 };
 #endif
