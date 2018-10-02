@@ -5,7 +5,8 @@
 #include "LeftToRightIndexer.h"
 #include "LedUniverse.h"
 
-enum AnimType{    // TODO: this now holds not only animations, rename to view type or smth
+enum AnimType
+{ // TODO: this now holds not only animations, rename to view type or smth
   TestRGB,
   SolidColorCycle,
   RunningPixel,
@@ -15,29 +16,28 @@ enum AnimType{    // TODO: this now holds not only animations, rename to view ty
   Static_PalleteH
 };
 
-class AnimController{
-  public:
-    AnimController(LedUniverse *ledUniverse);
-    void Animate();
-    void ChangeAnim(AnimType animType);
-    bool AnimComplete;
-    bool IsStaticView;
-    CRGBPalette16 CurrentPalette;
+class AnimController
+{
+public:
+  AnimController(LedUniverse *ledUniverse);
+  void Animate();
+  void ChangeAnim(AnimType animType);
+  bool AnimComplete;
+  bool IsStaticView;
+  CRGBPalette16 CurrentPalette;
 
+  void View_PalleteV();
+  void View_PalleteH();
 
-    void View_PalleteV();
-    void View_PalleteH();
-  private:
-    uint8_t _animStep;
-    LedUniverse *_ledUniverse;
-    AnimType _animType;
+private:
+  uint8_t _animStep;
+  LedUniverse *_ledUniverse;
+  AnimType _animType;
 
-    void Animate_TestRGB();
-    void Animate_SolidColorCycle();
-    void Animate_RunningPixel();
-    void Animate_ScrollPaletteLtR();
-    void Animate_PaletteVertical();
-
-    
+  void Animate_TestRGB();
+  void Animate_SolidColorCycle();
+  void Animate_RunningPixel();
+  void Animate_ScrollPaletteLtR();
+  void Animate_PaletteVertical();
 };
 #endif
