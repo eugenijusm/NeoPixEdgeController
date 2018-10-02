@@ -27,8 +27,8 @@ void AnimController::Animate(){ // TODO: extract to exact animation classes
     Animate_ScrollPaletteLtR();
   }
   else if(_animType==AnimType::PaletteV){
-    DBG("Palette vertical\n");
-    CurrentPalette=RainbowColors_p;
+    //DBG("Palette vertical\n");
+    //CurrentPalette=RainbowColors_p;
     Animate_PaletteVertical();
   }  
   FastLED.show();
@@ -149,13 +149,13 @@ void AnimController::Animate_PaletteVertical(){
   
     if(offsetVal < NUM_LEDS_HALF){
       colorIndex = map(offsetVal, 0, NUM_LEDS_HALF, 0, 255);    
-      DBG("A");
+      //DBG("A");
     }
     else{
       colorIndex = map(offsetVal-NUM_LEDS_HALF, 0, NUM_LEDS_HALF, 0, 255);    
-      DBG("B");
+      //DBG("B");
     }
-    DBG("i:%u step:%u colorIndx:%u offsetVal:%u\n", i, _animStep, colorIndex, offsetVal);
+    //DBG("i:%u step:%u colorIndx:%u offsetVal:%u\n", i, _animStep, colorIndex, offsetVal);
     CRGB color = ColorFromPalette(CurrentPalette, colorIndex);
     _ledUniverse->VerticalIndexer->SetColor(i, color);
   }  
