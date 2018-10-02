@@ -26,6 +26,8 @@
 uint8_t ota_enabled = 0;
 #define MODE_CHANGE_PIN 13 // 13 = D7; 12 = D6
 
+#define WS_OK_NOCONTENT 204
+
 LedUniverse ledUniverse;
 AnimController animController(&ledUniverse);
 
@@ -102,6 +104,32 @@ void webServer_serveFile()
   File file = SPIFFS.open(webServer.uri(), "r");
   webServer.streamFile(file, "text/html");
   file.close();
+}
+
+void webServer_serveIndex()
+{
+  File file = SPIFFS.open("Index.html", "r");
+  webServer.streamFile(file, "text/html");
+  file.close();
+}
+
+void webServer_updatePalette()
+{
+  uint8_t c1r1r = webServer.arg("clr1[r]").toInt();
+  uint8_t c1r1g = webServer.arg("clr1[g]").toInt();
+  uint8_t c1r1b = webServer.arg("clr1[b]").toInt();
+  DBG("----------- r:%u g:%u b:%u", c1r1r, c1r1g, c1r1b);
+  CRGB color1 = CRGB(c1r1r, c1r1g, c1r1b);
+  animController.CurrentPalette = CRGBPalette16(color1, CRGB::Yellow);
+  webServer.send(WS_OK_NOCONTENT);
+}
+
+void webServer_updateAnimation(){
+  uint8_t animTypeInt = webServer.arg("AnimType").toInt();
+  DBG("animTypeInt:%u\n", animTypeInt);
+  AnimType animType = static_cast<AnimType>(animTypeInt); // TODO: do smth better than double cast
+  animController.ChangeAnim(animType);
+  webServer.send(WS_OK_NOCONTENT);
 }
 
 void handlePallete()
@@ -184,28 +212,21 @@ void setup_WebServer()
 {
   webServer.on("/PaletteChange.html", webServer_serveFile);
   webServer.on("/PaletteChange.js", webServer_serveFile);
-  webServer.on("/", []() {
-    webServer.send(200, "text/plain", "Neopixel Edge Controller");
-  });
+  webServer.on("/Index.html", webServer_serveFile);
+  webServer.on("/Index.js", webServer_serveFile);
+  webServer.on("/", webServer_serveIndex);  // TODO: doesn't work :/
 
   // ----- Api -----
   webServer.on("/api/palette", webServer_updatePalette);
+  webServer.on("/api/animation", webServer_updateAnimation);
+  /*
   webServer.on("/palette", handlePallete);
   webServer.on("/paletteH", handlePalleteH);
+  */
 
   webServer.onNotFound(handleNotFound);
   webServer.begin();
   DBG("HTTP server started");
-}
-
-void webServer_updatePalette()
-{
-  uint8_t c1r1r = webServer.arg("clr1[r]").toInt();
-  uint8_t c1r1g = webServer.arg("clr1[g]").toInt();
-  uint8_t c1r1b = webServer.arg("clr1[b]").toInt();
-  DBG("----------- r:%u g:%u b:%u", c1r1r, c1r1g, c1r1b);
-  CRGB color1 = CRGB(c1r1r, c1r1g, c1r1b);
-  animController.CurrentPalette = CRGBPalette16(color1, CRGB::Yellow);
 }
 
 /*

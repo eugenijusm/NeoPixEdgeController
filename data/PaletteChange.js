@@ -7,7 +7,6 @@ $(function () {
 		//alert(window.location.pathname);
 		$.post("/api/palette",
 			{ clr1: color1 },
-			//{suggest: 1},
 			function (data, status) { alert(status); });
 	});
 
