@@ -33,6 +33,7 @@ AnimController animController(&ledUniverse);
 
 uint32_t btnMillis = millis();
 uint32_t animMillis = millis();
+uint16_t animDelay = 300;
 
 #define ANIM_COUNT 2
 AnimType _demoAnims[] = {AnimType::TestRGB, AnimType::PaletteV, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
@@ -80,7 +81,7 @@ void loop()
       }
       animController.ChangeAnim(_demoAnims[_animIndex]);
     }
-    animMillis = millis() + 300;
+    animMillis = millis() + animDelay;
   }
 
   // EVERY_N_SECONDS(1){monitorModeButton();}
@@ -115,16 +116,52 @@ void webServer_serveIndex()
 
 void webServer_updatePalette()
 {
-  uint8_t c1r1r = webServer.arg("clr1[r]").toInt();
-  uint8_t c1r1g = webServer.arg("clr1[g]").toInt();
-  uint8_t c1r1b = webServer.arg("clr1[b]").toInt();
-  DBG("----------- r:%u g:%u b:%u", c1r1r, c1r1g, c1r1b);
-  CRGB color1 = CRGB(c1r1r, c1r1g, c1r1b);
-  animController.CurrentPalette = CRGBPalette16(color1, CRGB::Yellow);
+  // uint8_t c1r1r = webServer.arg("clr1[r]").toInt();
+  // uint8_t c1r1g = webServer.arg("clr1[g]").toInt();
+  // uint8_t c1r1b = webServer.arg("clr1[b]").toInt();
+  // DBG("----------- r:%u g:%u b:%u", c1r1r, c1r1g, c1r1b);
+  animController.CurrentPalette = CRGBPalette16(
+      CRGB(
+          webServer.arg("clr1[r]").toInt(),
+          webServer.arg("clr1[g]").toInt(),
+          webServer.arg("clr1[b]").toInt()),
+      CRGB(
+          webServer.arg("clr2[r]").toInt(),
+          webServer.arg("clr2[g]").toInt(),
+          webServer.arg("clr2[b]").toInt()));
   webServer.send(WS_OK_NOCONTENT);
 }
 
-void webServer_updateAnimation(){
+void webServer_updateDelay()
+{
+  uint8_t changeType = webServer.arg("ChangeType").toInt();
+  switch (changeType)
+    {
+    case 0:
+      animDelay = 0;
+      break;
+    case 1:
+      if(animDelay>1000){
+        animDelay -= 1000;
+      }
+      break;
+    case 2:
+      if(animDelay>100){
+        animDelay -= 100;
+      }
+      break;
+    case 3:
+      animDelay += 100;
+      break;
+    case 4:
+      animDelay += 1000;
+      break;
+    }
+  webServer.send(WS_OK_NOCONTENT);
+}
+
+void webServer_updateAnimation()
+{
   uint8_t animTypeInt = webServer.arg("AnimType").toInt();
   DBG("animTypeInt:%u\n", animTypeInt);
   AnimType animType = static_cast<AnimType>(animTypeInt); // TODO: do smth better than double cast
@@ -215,11 +252,12 @@ void setup_WebServer()
   webServer.on("/Index.html", webServer_serveFile);
   webServer.on("/Index.js", webServer_serveFile);
   webServer.on("/ApiService.js", webServer_serveFile);
-  webServer.on("/", webServer_serveIndex);  // TODO: doesn't work :/
+  webServer.on("/", webServer_serveIndex); // TODO: doesn't work :/
 
   // ----- Api -----
   webServer.on("/api/palette", webServer_updatePalette);
   webServer.on("/api/animation", webServer_updateAnimation);
+  webServer.on("/api/delay", webServer_updateDelay);
   /*
   webServer.on("/palette", handlePallete);
   webServer.on("/paletteH", handlePalleteH);

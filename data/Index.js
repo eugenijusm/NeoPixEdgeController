@@ -5,4 +5,11 @@ $(function () {
             AnimType: $(this).data('value')
         });
     });
+
+    $(".delay-selector").click(function () {
+        DoPost("/api/delay",
+        {
+            ChangeType: $(this).data('value')
+        });
+    });
 });

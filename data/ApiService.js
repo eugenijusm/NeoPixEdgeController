@@ -4,7 +4,7 @@ $(function () {
         var currentTime = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
         $.ajax({
             type: "POST",
-            url: "/api/animation",
+            url: url,
             data: data
         })
             .done(function () {
