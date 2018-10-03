@@ -1,13 +1,13 @@
 $(function () {
 
 	$("#BtnSet").click(function () {
-		//alert($("#PaletteColor1").val());
 		var color1 = hexToRgb($("#PaletteColor1").val());
-		//alert(color1.r);
-		//alert(window.location.pathname);
-		$.post("/api/palette",
-			{ clr1: color1 },
-			function (data, status) { alert(status); });
+		var color2 = hexToRgb($("#PaletteColor2").val());
+		DoPost("/api/palette",
+			{
+				clr1: color1,
+				clr2: color2
+			});
 	});
 
 	hexToRgb = function (hex) {

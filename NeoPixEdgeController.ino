@@ -214,6 +214,7 @@ void setup_WebServer()
   webServer.on("/PaletteChange.js", webServer_serveFile);
   webServer.on("/Index.html", webServer_serveFile);
   webServer.on("/Index.js", webServer_serveFile);
+  webServer.on("/ApiService.js", webServer_serveFile);
   webServer.on("/", webServer_serveIndex);  // TODO: doesn't work :/
 
   // ----- Api -----

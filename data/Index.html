@@ -11,24 +11,50 @@
 
 <body>
     <div class="container">
-        <form>
-            <div class="form-group">
-                <label>Animation</label>
-                <select class="form-control" id="animType">
-                    <option value="0">RGB</option>
-                    <option value="1">Cycle single color</option>
-                    <option value="2">Running pix</option>
-                    <option value="3">P Horizonmtal scroll</option>
-                    <option value="4">P Vertical scroll</option>
-                    <option value="5">Static P Vertical</option>
-                    <option value="6">Static P Horizontal</option>
-                  </select>
-            </div>            
-        </form>
+        <h2>NeoPix controller</h2>
         <div class="row">
-            <div class="col-sm">Some txt</div>
+            <div class="dropdown col">
+                <a class="btn btn-primary dropdown-toggle col" href="#" role="button" data-toggle="dropdown">
+                    Animation
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item anim-selector" href="#" data-value="0">RGB</a>
+                    <a class="dropdown-item anim-selector" href="#" data-value="1">Cycle single color</a>
+                    <a class="dropdown-item anim-selector" href="#" data-value="2">Running pixel</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item anim-selector" href="#" data-value="3">Horizontal scroll</a>
+                    <a class="dropdown-item anim-selector" href="#" data-value="4">Vertical scroll</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item anim-selector" href="#" data-value="5">Vertical static</a>
+                    <a class="dropdown-item anim-selector" href="#" data-value="6">Horizontal static</a>
+                </div>
+            </div>
         </div>
-        <a href="#" id="BtnChange" class="btn btn-primary">Change</a>
+        <hr />
+        <div class="row">
+            <div class="col">Refresh</div>
+            <div class="btn-group col">
+                <a href="#" id="BtnNoDelay" class="btn btn-outline-info col">0</a>
+
+                <a href="#" id="BtnFasterL" class="btn btn-outline-dark col">-1s</a>
+
+                <a href="#" id="BtnFaster" class="btn btn-outline-secondary col">-100ms</a>
+
+                <a href="#" id="BtnSlower" class="btn btn-outline-secondary col">+100ms</a>
+
+                <a href="#" id="BtnSlowerL" class="btn btn-outline-dark col">+1s</a>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="btn-group-vertical col-sm">
+                <a class="btn btn-secondary" href="PaletteChange.html">Palette</a>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div id="ApiResult" class="col-sm"></div>
+        </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -40,6 +66,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="ApiService.js"></script>
     <script src="Index.js"></script>
 </body>
 
