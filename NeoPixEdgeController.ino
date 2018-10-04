@@ -33,11 +33,7 @@ AnimController animController(&ledUniverse);
 
 uint32_t btnMillis = millis();
 uint32_t animMillis = millis();
-uint16_t animDelay = 300;
-
-#define ANIM_COUNT 2
-AnimType _demoAnims[] = {AnimType::TestRGB, AnimType::PaletteV, /*AnimType::RunningPixel, AnimType::SolidColorCycle, AnimType::ScrollPaletteLtR*/};
-uint8_t _animIndex = 0;
+uint16_t animDelay = 10;
 
 ESP8266WebServer webServer(80);
 
@@ -54,7 +50,8 @@ void setup()
   setup_OTA();
   SPIFFS.begin();
   setup_WebServer();
-  animController.ChangeAnim(_demoAnims[_animIndex]);
+
+  //animController.ChangeAnim(_demoAnims[_animIndex]);  // TODO: initial animation
 }
 
 void loop()
@@ -66,21 +63,9 @@ void loop()
 
   webServer.handleClient();
 
-  if (!animController.IsStaticView && millis() > animMillis)
+  if (millis() > animMillis)
   {
-    animController.Animate();
-    if (animController.AnimComplete)
-    {
-      if (_animIndex == ANIM_COUNT - 1)
-      {
-        _animIndex = 0;
-      }
-      else
-      {
-        _animIndex++;
-      }
-      animController.ChangeAnim(_demoAnims[_animIndex]);
-    }
+    animController.Animate();    
     animMillis = millis() + animDelay;
   }
 
@@ -166,49 +151,8 @@ void webServer_updateAnimation()
   DBG("animTypeInt:%u\n", animTypeInt);
   AnimType animType = static_cast<AnimType>(animTypeInt); // TODO: do smth better than double cast
   animController.ChangeAnim(animType);
+  animDelay = animController.GetDefaultDelay();
   webServer.send(WS_OK_NOCONTENT);
-}
-
-void handlePallete()
-{
-  animController.ChangeAnim(AnimType::Static_PalleteV);
-  animController.View_PalleteV(); // NOTE: maybe it's better to keep animation loop and play around with isAnimationComplete flag; instead of invoking this directly?
-  webServer.send(200, "text/plain", "Ok");
-}
-
-void handlePalleteH()
-{
-  animController.ChangeAnim(AnimType::Static_PalleteH);
-  String qPalleteCode = webServer.arg("pallete");
-  switch (qPalleteCode.toInt())
-  {
-  case 1:
-    animController.CurrentPalette = RainbowColors_p;
-    break;
-  case 2:
-    animController.CurrentPalette = CloudColors_p;
-    break;
-  case 3:
-    animController.CurrentPalette = LavaColors_p;
-    break;
-  case 4:
-    animController.CurrentPalette = OceanColors_p;
-    break;
-  case 5:
-    animController.CurrentPalette = ForestColors_p;
-    break;
-  case 6:
-    animController.CurrentPalette = PartyColors_p;
-    break;
-  case 7:
-    animController.CurrentPalette = HeatColors_p;
-    break;
-  default:
-    break;
-    //animController.CurrentPalette = RainbowStripeColors_p;
-  }
-  animController.View_PalleteH();
-  webServer.send(200, "text/plain", "Ok");
 }
 
 void handleNotFound()
@@ -258,10 +202,6 @@ void setup_WebServer()
   webServer.on("/api/palette", webServer_updatePalette);
   webServer.on("/api/animation", webServer_updateAnimation);
   webServer.on("/api/delay", webServer_updateDelay);
-  /*
-  webServer.on("/palette", handlePallete);
-  webServer.on("/paletteH", handlePalleteH);
-  */
 
   webServer.onNotFound(handleNotFound);
   webServer.begin();
