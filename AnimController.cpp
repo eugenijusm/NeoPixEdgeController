@@ -34,23 +34,23 @@ void AnimController::ChangeAnim(AnimType animType)
       DBG("RGB\n");
       break;
     case AnimType::SolidColorCycle:    
-      CurrentAnimation = new AnimSolidColorCycle(_ledUniverse);
+      CurrentAnimation = new AnimSolidColorCycle(_ledUniverse, &CurrentPalette);
       DBG("Solid cycle\n");
       break;
     case AnimType::RunningPixel:    
-      CurrentAnimation = new AnimRunningPixel(_ledUniverse);
+      CurrentAnimation = new AnimRunningPixel(_ledUniverse, &CurrentPalette);
       DBG("Runnin\n");
       break;
     case AnimType::ScrollPaletteLtR:
-      CurrentAnimation = new AnimPaletteScrollLtr(_ledUniverse);
+      CurrentAnimation = new AnimPaletteScrollLtr(_ledUniverse, &CurrentPalette);
       DBG("Scroll LtR\n");
       break;
     case AnimType::PaletteV:    
-      CurrentAnimation = new AnimPaletteScrollTtb(_ledUniverse);
+      CurrentAnimation = new AnimPaletteScrollTtb(_ledUniverse, &CurrentPalette);
       DBG("Palette vertical\n");
       break;    
     case AnimType::Static_PalleteH:    
-      CurrentAnimation = new AnimStPaletteHorizontal(_ledUniverse);
+      CurrentAnimation = new AnimStPaletteHorizontal(_ledUniverse, &CurrentPalette);
       DBG("Palette static H\n");
       break;
     case AnimType::Static_PalleteV:    
@@ -58,7 +58,7 @@ void AnimController::ChangeAnim(AnimType animType)
       DBG("Palette static V\n");
       break;    
     default:    
-      CurrentAnimation = new AnimRunningPixel(_ledUniverse);
+      CurrentAnimation = new AnimRGBCycle(_ledUniverse);  // Fallback, needed to prevent null ref.
       DBG("Something wrong!");
       break;    
   }

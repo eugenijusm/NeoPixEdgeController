@@ -16,7 +16,7 @@ public:
 protected:
   uint8_t _animStep;
   LedUniverse *_ledUniverse;
-  CRGBPalette16 *_currentPallete;
+  CRGBPalette16 *_currentPalette;
 };
 
 #endif

@@ -13,7 +13,7 @@ class AnimStPaletteVertical : public AnimationBase
 class AnimStPaletteHorizontal : public AnimationBase
 {
     public:
-        AnimStPaletteHorizontal(LedUniverse *ledUniverse);
+        AnimStPaletteHorizontal(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette);
         virtual void Animate();
 };
 

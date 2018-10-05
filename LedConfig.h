@@ -21,7 +21,7 @@
 #define TOP_LEDS_PIN D8
 #endif
 
-#define MASTER_BRIGHTNESS 100
+#define MASTER_BRIGHTNESS 200
 
 #define LEFT_LEDS_PIN D1   // D1 = gpio 5 = black
 #define RIGHT_LEDS_PIN D2  // D2 = gpio 4 = red

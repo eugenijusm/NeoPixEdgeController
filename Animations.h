@@ -6,7 +6,7 @@
 class AnimSolidColorCycle : public AnimationBase
 {
     public:
-        AnimSolidColorCycle(LedUniverse *ledUniverse);
+        AnimSolidColorCycle(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette);
         virtual void Animate();        
 };
 
@@ -20,21 +20,21 @@ class AnimRGBCycle : public AnimationBase
 class AnimRunningPixel : public AnimationBase
 {
     public:
-        AnimRunningPixel(LedUniverse *ledUniverse);
+        AnimRunningPixel(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette);
         virtual void Animate();
 };
 
 class AnimPaletteScrollLtr : public AnimationBase
 {
     public:
-        AnimPaletteScrollLtr(LedUniverse *ledUniverse);
+        AnimPaletteScrollLtr(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette);
         virtual void Animate();
 };
 
 class AnimPaletteScrollTtb : public AnimationBase
 {
     public:
-        AnimPaletteScrollTtb(LedUniverse *ledUniverse);
+        AnimPaletteScrollTtb(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette);
         virtual void Animate();
 };
 

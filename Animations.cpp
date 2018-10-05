@@ -1,7 +1,8 @@
 #include "Animations.h"
 #include "FastLED.h"
 
-AnimSolidColorCycle::AnimSolidColorCycle(LedUniverse *ledUniverse) : AnimationBase(ledUniverse)
+AnimSolidColorCycle::AnimSolidColorCycle(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette)
+    : AnimationBase(ledUniverse, currentPalette)
 {
     DefaultDelay = 300;
 }
@@ -13,7 +14,7 @@ void AnimSolidColorCycle::Animate()
         IsComplete = false;
     }
 
-    CRGB color = ColorFromPalette(RainbowColors_p, _animStep, 255, LINEARBLEND);
+    CRGB color = ColorFromPalette(*_currentPalette, _animStep, 255, LINEARBLEND);
     _ledUniverse->FillSingleColor(color);
 
     if (_animStep == 255)
@@ -58,7 +59,8 @@ void AnimRGBCycle::Animate()
 }
 
 // ------------------------------------------------------------------------------------------------
-AnimRunningPixel::AnimRunningPixel(LedUniverse *ledUniverse) : AnimationBase(ledUniverse)
+AnimRunningPixel::AnimRunningPixel(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette)
+    : AnimationBase(ledUniverse, currentPalette)
 {
     DefaultDelay = 50;
 }
@@ -74,7 +76,7 @@ void AnimRunningPixel::Animate()
     {
         _ledUniverse->LtRIndexer->SetColor(_animStep - 1, CRGB::Black);
     }
-    CRGB color = ColorFromPalette(RainbowColors_p, _animStep, 255, LINEARBLEND); // TODO: cover whole range
+    CRGB color = ColorFromPalette(*_currentPalette, _animStep, 255, LINEARBLEND); // TODO: cover whole range
     _ledUniverse->LtRIndexer->SetColor(_animStep, color);
 
     _animStep++;
@@ -86,7 +88,8 @@ void AnimRunningPixel::Animate()
 }
 
 // ------------------------------------------------------------------------------------------------
-AnimPaletteScrollLtr::AnimPaletteScrollLtr(LedUniverse *ledUniverse) : AnimationBase(ledUniverse)
+AnimPaletteScrollLtr::AnimPaletteScrollLtr(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette)
+    : AnimationBase(ledUniverse, currentPalette)
 {
     DefaultDelay = 300;
 }
@@ -101,7 +104,7 @@ void AnimPaletteScrollLtr::Animate()
     uint8_t colorOffset = _animStep;
     for (uint8_t i = 0; i < NUM_LEDS_TOTAL; i++)
     {
-        CRGB paletteColor = ColorFromPalette(CloudColors_p, colorOffset); // <--- palette, e.g. CloudColors_p, RainbowColors_p
+        CRGB paletteColor = ColorFromPalette(*_currentPalette, colorOffset);
 
         _ledUniverse->LtRIndexer->SetColor(i, paletteColor);
         colorOffset += 1;
@@ -117,7 +120,8 @@ void AnimPaletteScrollLtr::Animate()
 }
 
 // ------------------------------------------------------------------------------------------------
-AnimPaletteScrollTtb::AnimPaletteScrollTtb(LedUniverse *ledUniverse) : AnimationBase(ledUniverse)
+AnimPaletteScrollTtb::AnimPaletteScrollTtb(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette)
+    : AnimationBase(ledUniverse, currentPalette)
 {
     DefaultDelay = 300;
 }
@@ -142,7 +146,7 @@ void AnimPaletteScrollTtb::Animate()
             colorIndex = map(offsetVal - NUM_LEDS_HALF, 0, NUM_LEDS_HALF, 0, 255);
         }
         //DBG("i:%u step:%u colorIndx:%u offsetVal:%u\n", i, _animStep, colorIndex, offsetVal);
-        CRGB color = ColorFromPalette(CloudColors_p, colorIndex);   // CurrentPalette
+        CRGB color = ColorFromPalette(*_currentPalette, colorIndex);
         _ledUniverse->VerticalIndexer->SetColor(i, color);
     }
 

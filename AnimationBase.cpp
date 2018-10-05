@@ -10,7 +10,7 @@ AnimationBase::AnimationBase(LedUniverse *ledUniverse)
 
 AnimationBase::AnimationBase(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette) : AnimationBase(ledUniverse)
 {
-    _currentPallete = currentPalette;    
+    _currentPalette = currentPalette;    
 }
 
 AnimationBase::~AnimationBase() {}
