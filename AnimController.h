@@ -4,7 +4,7 @@
 #include "LedUniverse.h"
 #include "AnimationBase.h"
 
-enum AnimType
+enum class AnimType
 {
   TestRGB,
   SolidColorCycle,

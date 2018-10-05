@@ -33,7 +33,7 @@ AnimController animController(&ledUniverse);
 
 uint32_t btnMillis = millis();
 uint32_t animMillis = millis();
-uint16_t animDelay = 10;
+uint16_t animDelay = 1000;
 
 ESP8266WebServer webServer(80);
 
@@ -99,7 +99,7 @@ void webServer_serveIndex()
   file.close();
 }
 
-void webServer_updatePalette()
+void webServer_updatePalette()    // TODO: delete previous? need to differentiate between builtin and custom?
 {
   // uint8_t c1r1r = webServer.arg("clr1[r]").toInt();
   // uint8_t c1r1g = webServer.arg("clr1[g]").toInt();
@@ -150,6 +150,8 @@ void webServer_updateAnimation()
   uint8_t animTypeInt = webServer.arg("AnimType").toInt();
   DBG("animTypeInt:%u\n", animTypeInt);
   AnimType animType = static_cast<AnimType>(animTypeInt); // TODO: do smth better than double cast
+  int yy = static_cast<int>(animType);
+  DBG("X%uX\n", yy);
   animController.ChangeAnim(animType);
   animDelay = animController.GetDefaultDelay();
   webServer.send(WS_OK_NOCONTENT);
