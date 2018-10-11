@@ -5,9 +5,11 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <FS.h>
+
+//#include <WiFiUdp.h>
+//#include <ArduinoOTA.h>
+#include <ESP8266HTTPUpdateServer.h>
 
 #include "FastLED.h"
 
@@ -36,6 +38,7 @@ uint32_t animMillis = millis();
 uint16_t animDelay = 1000;
 
 ESP8266WebServer webServer(80);
+ESP8266HTTPUpdateServer httpUpdater;
 
 void setup()
 {
@@ -47,19 +50,20 @@ void setup()
   DBG("Start\n");
   ledUniverse.Setup();
   // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
-  setup_OTA();
+
   SPIFFS.begin();
   setup_WebServer();
 
-  //animController.ChangeAnim(_demoAnims[_animIndex]);  // TODO: initial animation
+  //setup_OTA();
+  httpUpdater.setup(&webServer, "/upd");
 }
 
 void loop()
 {
-  if (ota_enabled == 1 || OTA_ON == 1)
-  {
-    ArduinoOTA.handle();
-  }
+  // if (ota_enabled == 1 || OTA_ON == 1)
+  // {
+  //   ArduinoOTA.handle();
+  // }
 
   webServer.handleClient();
 
@@ -231,6 +235,7 @@ void setBuiltinLed(bool turnedOn)
   }
 }
 
+/*
 void setup_OTA()
 {
   pinMode(OTA_ENABLE_PIN, INPUT_PULLUP);
@@ -249,20 +254,21 @@ void setup_OTA()
     setBuiltinLed(false);
 
     ArduinoOTA.setHostname(host);
-    /*
-    ArduinoOTA.onStart([]() {
-      setBuiltinLed(true);
-      //DBG("Ota start");
-    });
     
-    ArduinoOTA.onEnd([]() {
-      setBuiltinLed(false);
-      //DBG("Ota end");
-    });
-    */
+    // ArduinoOTA.onStart([]() {
+    //   setBuiltinLed(true);
+    //   //DBG("Ota start");
+    // });
+    
+    // ArduinoOTA.onEnd([]() {
+    //   setBuiltinLed(false);
+    //   //DBG("Ota end");
+    // });
+    
     ArduinoOTA.onError([](ota_error_t error) { ESP.restart(); });
     ArduinoOTA.begin();
 
     DBG("OTA ready");
   }
 }
+*/
