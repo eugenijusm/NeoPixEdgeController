@@ -56,7 +56,11 @@ void AnimController::ChangeAnim(AnimType animType)
     case AnimType::Static_PalleteV:    
       CurrentAnimation = new AnimStPaletteVertical(_ledUniverse, &CurrentPalette);
       DBG("Palette static V\n");
-      break;    
+      break;
+    case AnimType::RandomSinglePixel:
+      CurrentAnimation = new AnimRandomSinglePixel(_ledUniverse);
+      DBG("Random single pixel\n");
+      break;
     default:    
       CurrentAnimation = new AnimRGBCycle(_ledUniverse);  // Fallback, needed to prevent null ref.
       DBG("Something wrong!");

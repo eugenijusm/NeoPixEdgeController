@@ -38,4 +38,11 @@ class AnimPaletteScrollTtb : public AnimationBase
         virtual void Animate();
 };
 
+class AnimRandomSinglePixel : public AnimationBase
+{
+    public:
+        AnimRandomSinglePixel(LedUniverse *ledUniverse);
+        virtual void Animate();
+};
+
 #endif

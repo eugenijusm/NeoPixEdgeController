@@ -157,3 +157,27 @@ void AnimPaletteScrollTtb::Animate()
         IsComplete = true;
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+
+AnimRandomSinglePixel::AnimRandomSinglePixel(LedUniverse *ledUniverse) : AnimationBase(ledUniverse)
+{
+    DefaultDelay = 200;
+}
+
+void AnimRandomSinglePixel::Animate()
+{
+    if (_animStep == 0)
+    {
+        IsComplete = false;
+    }
+
+    _ledUniverse->LtRIndexer->SetColor(random8(NUM_LEDS_TOTAL), CHSV(random8(),255,255));
+
+    _animStep++;
+    if (_animStep = 255)
+    {
+        IsComplete = true;
+        _animStep = 0;
+    }
+}

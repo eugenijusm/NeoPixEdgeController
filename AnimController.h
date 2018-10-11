@@ -12,7 +12,8 @@ enum class AnimType
   ScrollPaletteLtR,
   PaletteV,
   Static_PalleteV,
-  Static_PalleteH
+  Static_PalleteH,
+  RandomSinglePixel
 };
 
 class AnimController
