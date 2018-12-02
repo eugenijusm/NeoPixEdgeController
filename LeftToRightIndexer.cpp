@@ -41,10 +41,14 @@ void LeftToRightIndexer::SetColor(uint8_t index, CRGB color)
   {
     uint8_t idx = index - NUM_LEDS_VH;
     _right[idx] = color;
+    DBG("RR\n");
   }
   else{
     uint8_t idx = NUM_LEDS_VERTICAL - (index - NUM_LEDS_VHV);
     _top[idx] = color;
+    DBG("T");
+    //DBG(idx);
+    DBG("\n");
   }
 #endif
 }
