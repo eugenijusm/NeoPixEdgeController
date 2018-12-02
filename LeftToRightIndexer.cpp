@@ -2,12 +2,14 @@
 #include "LedConfig.h"
 #include "Dbg.h"
 
-void LeftToRightIndexer::Setup(CRGB *left, CRGB *right, CRGB *bottom)
+void LeftToRightIndexer::Setup(CRGB *left, CRGB *right, CRGB *bottom, CRGB *top)
 { //, CRGB *top){
   _left = left;
   _right = right;
   _bottom = bottom;
-  //_top = top;
+  #ifndef UCONFIG
+  _top = top;
+  #endif
 }
 
 void LeftToRightIndexer::SetColor(uint8_t index, CRGB color)
@@ -26,6 +28,7 @@ void LeftToRightIndexer::SetColor(uint8_t index, CRGB color)
     //DBG("B\n");
   }
 
+#ifdef UCONFIG
   else
   {
     uint8_t idx = index - NUM_LEDS_VH;
@@ -33,4 +36,15 @@ void LeftToRightIndexer::SetColor(uint8_t index, CRGB color)
     _right[idx] = color;
     //DBG("R\n");
   }
+#else
+  else if (index >= NUM_LEDS_VH && index < NUM_LEDS_VHV)
+  {
+    uint8_t idx = index - NUM_LEDS_VH;
+    _right[idx] = color;
+  }
+  else{
+    uint8_t idx = NUM_LEDS_VERTICAL - (index - NUM_LEDS_VHV);
+    _top[idx] = color;
+  }
+#endif
 }

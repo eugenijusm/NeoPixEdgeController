@@ -21,12 +21,23 @@
 #include "LedUniverse.h"
 #include "Dbg.h"
 
+#define MODE_CHANGE_PIN 13    // 13 = D7
+#define OPTION_CHANGE_PIN 12  // 12 = D6
+uint8_t CtrlCurrentAnimation = 0;
+uint8_t CtrlCurrentPalette = 0;
+
+// --------------------------------------------------------
+// Rygos cfg
+#define ENABLE_BUTTON_CONTROL
+#define WIFI_IS_AP
+// --------------------------------------------------------
+
+
 #define OTA_ON 0 // Set to 1 to Force OTA
 
 #define BUILTIN_LED_PIN 2 // D4
 #define OTA_ENABLE_PIN 14 // D5
 uint8_t ota_enabled = 0;
-#define MODE_CHANGE_PIN 13 // 13 = D7; 12 = D6
 
 #define WS_OK_NOCONTENT 204
 
@@ -41,15 +52,16 @@ ESP8266WebServer webServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
 
 void setup()
-{
-  //WiFi.persistent(false);
-  setup_wifi(); // must be done as early as possible; stops working if led is touched first :/
+{  
 #ifdef DEBUG_ESP_PORT
   Serial.begin(115200);
 #endif
   DBG("Start\n");
+  //WiFi.persistent(false);
+  setup_wifi(); // must be done as early as possible; stops working if led is touched first :/
   ledUniverse.Setup();
-  // pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
+  pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
+  pinMode(OPTION_CHANGE_PIN, INPUT_PULLUP);
 
   SPIFFS.begin();
   setup_WebServer();
@@ -73,20 +85,9 @@ void loop()
     animMillis = millis() + animDelay;
   }
 
-  // EVERY_N_SECONDS(1){monitorModeButton();}
-  // EVERY_N_SECONDS(2){handleAnimation();}
-  //if(btnMillis>millis()){
-  //   monitorModeButton();
-  //   btnMillis = millis()+1000;
-  //}
-
-  /*
-   if(animMillis>millis()){
-        ledAnim.SolidRainbowCycle(); // TODO: should be like this
-    FastLED.show();  
-    animMillis = millis()+3000;
-   }
-   */
+  #ifdef ENABLE_BUTTON_CONTROL
+  EVERY_N_SECONDS(1){ monitorButtons(); }
+  #endif
 }
 
 void webServer_serveFile()
@@ -180,6 +181,10 @@ void handleNotFound()
 
 void setup_wifi()
 {
+#ifdef WIFI_IS_AP
+  WiFi.softAP(ap_ssid, ap_password);
+  DBG("Wifi AP");
+#else
   DBG("Wifi Setup");
 
   // Wifi client mode
@@ -193,6 +198,7 @@ void setup_wifi()
   }
 
   DBG("Wifi Ok");
+#endif
 }
 
 void setup_WebServer()
@@ -214,14 +220,47 @@ void setup_WebServer()
   DBG("HTTP server started");
 }
 
-/*
-void monitorModeButton(){
-  DBG("Btn monitor");
+#ifdef ENABLE_BUTTON_CONTROL
+void monitorButtons(){
+  DBG("Btn MON");
   if(digitalRead(MODE_CHANGE_PIN)==0){
-    DBG("Btn pressed");
+    CtrlCurrentAnimation++;
+    if(CtrlCurrentAnimation>7){ CtrlCurrentAnimation=0; }
+    AnimType animType = static_cast<AnimType>(CtrlCurrentAnimation);
+    animController.ChangeAnim(animType);
+    DBG("Anim CH");
+  }
+  if(digitalRead(OPTION_CHANGE_PIN)==0){
+    CtrlCurrentPalette++;
+    if(CtrlCurrentPalette > 6){ CtrlCurrentPalette=0; }
+    switch(CtrlCurrentPalette)
+    {
+      case 0:
+        animController.CurrentPalette = RainbowColors_p;
+        break;
+      case 1:
+        animController.CurrentPalette = CloudColors_p;
+        break;
+      case 2:
+        animController.CurrentPalette = LavaColors_p;
+        break;
+      case 3:
+        animController.CurrentPalette = OceanColors_p;
+        break;
+      case 4:
+        animController.CurrentPalette = ForestColors_p;
+        break;
+      case 5:
+        animController.CurrentPalette = PartyColors_p;
+        break;
+      case 6:
+        animController.CurrentPalette = HeatColors_p;
+        break;
+    }
+    DBG("Option CH");
   }
 }
-*/
+#endif
 
 void setBuiltinLed(bool turnedOn)
 {

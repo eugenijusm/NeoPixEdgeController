@@ -16,6 +16,9 @@ public:
   CRGB LedsLeft[NUM_LEDS_VERTICAL];
   CRGB LedsBottom[NUM_LEDS_HORIZONTAL];
   CRGB LedsRight[NUM_LEDS_VERTICAL];
+  #ifndef UCONFIG
+  CRGB LedsTop[NUM_LEDS_VERTICAL];
+  #endif
   LeftToRightIndexer *LtRIndexer;
   SymVerticalIndexer *VerticalIndexer;
 };
