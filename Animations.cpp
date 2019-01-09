@@ -1,5 +1,6 @@
 #include "Animations.h"
 #include "FastLED.h"
+#include "DBG.h"
 
 AnimSolidColorCycle::AnimSolidColorCycle(LedUniverse *ledUniverse, CRGBPalette16 *currentPalette)
     : AnimationBase(ledUniverse, currentPalette)

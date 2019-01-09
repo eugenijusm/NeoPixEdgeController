@@ -47,7 +47,8 @@ ESP8266WebServer webServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
 
 void setup()
-{  
+{
+  //WiFi.mode(WIFI_OFF);
 #ifdef DEBUG_ESP_PORT
   Serial.begin(115200);
 #endif
