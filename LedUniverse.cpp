@@ -14,7 +14,7 @@ void LedUniverse::Setup()
   FastLED.addLeds<NEOPIXEL, BOTTOM_LEDS_PIN>(LedsBottom, NUM_LEDS_HORIZONTAL);
   FastLED.addLeds<NEOPIXEL, RIGHT_LEDS_PIN>(LedsRight, NUM_LEDS_VERTICAL);
 
-#ifndef UCONFIG
+#ifdef RECTANGULAR_CONFIG
   FastLED.addLeds<NEOPIXEL, TOP_LEDS_PIN>(LedsTop, NUM_LEDS_HORIZONTAL);
   LtRIndexer->Setup(LedsLeft, LedsRight, LedsBottom, LedsTop);
   VerticalIndexer->Setup(LedsLeft, LedsRight, LedsBottom, LedsTop);
@@ -34,8 +34,8 @@ void LedUniverse::Setup()
   FillSingleColor(CRGB::Black);
   FastLED.show();
 
-#ifndef UCONFIG
-  DBG("Top LEDs present!");
+#ifdef RECTANGULAR_CONFIG
+  DBG("Rectangular cconfiguration!\n");
 #endif
   DBG("READY V:%u H:%u VH:%u Total:%u\n", NUM_LEDS_VERTICAL, NUM_LEDS_HORIZONTAL, NUM_LEDS_VH, NUM_LEDS_TOTAL);
 }
@@ -45,4 +45,7 @@ void LedUniverse::FillSingleColor(CRGB color)
   fill_solid(LedsLeft, NUM_LEDS_VERTICAL, color);
   fill_solid(LedsRight, NUM_LEDS_VERTICAL, color);
   fill_solid(LedsBottom, NUM_LEDS_HORIZONTAL, color);
+  //#ifdef RECTANGULAR_CONFIG
+  //fill_solid(LedsTop, NUM_LEDS_HORIZONTAL, color);
+  //#endif
 }

@@ -1,8 +1,3 @@
-// button debounce
-// https://gist.github.com/erikpena/a01ace32f7bef4a5ec52
-// attach interrupt
-// http://esp8266.github.io/Arduino/versions/2.1.0-rc2/doc/reference.html
-
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
@@ -27,9 +22,9 @@ uint8_t CtrlCurrentAnimation = 0;
 uint8_t CtrlCurrentPalette = 0;
 
 // --------------------------------------------------------
-// Rygos cfg
-#define ENABLE_BUTTON_CONTROL
-#define WIFI_IS_AP
+// Rectangular = Rygos cfg
+// #define ENABLE_BUTTON_CONTROL
+// #define WIFI_IS_AP
 // --------------------------------------------------------
 
 
